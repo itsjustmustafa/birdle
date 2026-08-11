@@ -1,0 +1,124 @@
+.game {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.birdleTitle {
+    position: relative;
+    width: min(100%, 300px);
+    aspect-ratio: 2 / 1;
+}
+
+.birdleTitleBackground {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* background: linear-gradient(45deg, #c30 10%, #fc0 50%, #72c5ff 80%); */
+    background: linear-gradient(45deg, var(--red) 10%, var(--yellow) 50%, var(--green) 80%);
+    mask-image: url("/src/assets/birdle_logo.png");
+    -webkit-mask-image: url("/src/assets/birdle_logo.png");
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    filter: drop-shadow(2px 0 0 #000);
+    z-index: 1;
+}
+
+.birdleTitleForeground {
+    position: absolute;
+    width: 100%;
+    /* height: 100%; */
+    object-fit:contain;
+    z-index: 2;
+}
+
+.table {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    align-items: center;
+    flex-shrink: 0;
+
+    width: 100%;
+}
+
+.titleRow,
+.guessRow {
+    width: max-content;
+    margin-inline: auto;
+}
+
+.titleRow{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 20px;
+    align-items: center;
+    /* justify-content: center; */
+}
+
+.titleRow *{
+    flex-shrink: 0;
+}
+
+.smallTitle {
+    font-size: 18px;
+}
+
+.nameCol{
+    width: min(max(17vw, 100px), 200px);
+    text-align: center;
+    font-size: 24px;
+}
+
+.nameCol p {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.correct p{
+    background-color: var(--green);
+}
+
+.imageCol {
+    width: min(max(15vw, 150px), 120px);
+}
+
+.statusCol{
+    width: 200px;
+}
+
+.multiItemCol {
+    width: min(max(10vw, 120px), 170px);
+}
+
+.numericalCol {
+    width: min(max(8vw, 100px), 150px);
+}
+
+
+.guessRow{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    /* text-align: center; */
+    padding-bottom: 10px;
+    align-items: stretch;
+    /* justify-content: center; */
+}
+
+.guess {
+    /* border: 1px solid black; */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}

@@ -1,0 +1,30 @@
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.backgroundImage,
+.foregroundImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.backgroundImage {
+  object-fit: cover;
+  filter: blur(20px);
+  transform: scale(2); /* prevents blurred edges from showing */
+  z-index: 0;
+}
+
+.foregroundImage {
+  object-fit: contain;
+  z-index: 1;
+}
+
+.link {
+    cursor: pointer;
+}

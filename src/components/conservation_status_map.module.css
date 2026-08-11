@@ -1,0 +1,141 @@
+.mapContainer{
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.mapContainer div, .mapContainer img {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+}
+
+.mapContainer .backdrop {
+    z-index: 0;
+    filter:
+        drop-shadow(0 0 5px var(--blue))
+        drop-shadow(0 0 15px var(--blue))
+        drop-shadow(0 0 30px var(--blue));
+}
+
+.mapContainer div{
+    z-index: 1;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.nsw {
+    mask-image: url('/src/assets/NSW.png');
+    -webkit-mask-image: url('/src/assets/NSW.png');
+}
+
+.vic {
+    mask-image: url('/src/assets/VIC.png');
+    -webkit-mask-image: url('/src/assets/VIC.png');
+}
+
+.tas {
+    mask-image: url('/src/assets/TAS.png');
+    -webkit-mask-image: url('/src/assets/TAS.png');
+}
+
+.qld {
+    mask-image: url('/src/assets/QLD.png');
+    -webkit-mask-image: url('/src/assets/QLD.png');
+}
+
+.sa {
+    mask-image: url('/src/assets/SA.png');
+    -webkit-mask-image: url('/src/assets/SA.png');
+}
+
+.nt {
+    mask-image: url('/src/assets/NT.png');
+    -webkit-mask-image: url('/src/assets/NT.png');
+}
+
+.wa {
+    mask-image: url('/src/assets/WA.png');
+    -webkit-mask-image: url('/src/assets/WA.png');
+}
+
+
+.green {
+    background-color: rgb(154, 188, 154);
+}
+
+.red {
+    background-color: rgb(205, 141, 141);
+}
+
+.mapContainer p {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    text-shadow: 0px 0px 5px white, 0px 0px 5px white;
+    cursor: pointer;
+}
+
+.mapContainer p::after{
+    content: attr(data-tooltip);
+    position: absolute;
+    white-space: nowrap;
+    transform: translate(calc(-9px - 50%), -120%);
+    background: rgb(104, 203, 104);
+    padding: 4px;
+    border-radius: 10px;
+    visibility: hidden;
+}
+
+.mapContainer p:hover{
+    z-index: 4;
+    text-shadow: 0px 0px 5px white, 0px 0px 5px white, 0px 0px 5px white, 0px 0px 5px white;
+;
+
+}
+
+.mapContainer p:hover::after{
+    visibility: visible;
+}
+
+.nswLabel {
+    top: 48px;
+    left: 101px;
+}
+
+.qldLabel {
+    top: 9px;
+    left: 95px;
+}
+
+.vicLabel { 
+    top: 83px;
+    left: 104px;
+}
+
+.tasLabel {
+    top: 114px;
+    left: 126px;
+}
+
+.ntLabel{
+    top: 25px;
+    left: 57px;
+}
+
+.saLabel{
+    top: 75px;
+    left: 63px;
+}
+
+.waLabel{
+    top: 60px;
+    left: 30px;
+}

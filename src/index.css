@@ -1,0 +1,53 @@
+@font-face {
+  font-family: 'Nunito';
+  src: url('/src/assets/fonts/Nunito-Regular.ttf');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Ensures text stays visible while loading */
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('/src/assets/fonts/Nunito-Regular.ttf');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Ensures text stays visible while loading */
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('/src/assets/fonts/Nunito-Bold.ttf');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap; /* Ensures text stays visible while loading */
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('/src/assets/fonts/Nunito-Italic.ttf');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap; /* Ensures text stays visible while loading */
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('/src/assets/fonts/Nunito-BoldItalic.ttf');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap; /* Ensures text stays visible while loading */
+}
+
+html {
+    background: linear-gradient(180deg, #CBE3EB 0%, #F7F4EF 100%);
+    background-repeat: no-repeat;
+    min-height: 100%;
+}
+
+body {
+    font-family: 'Nunito';
+    --green : rgb(154, 188, 154);
+    --red: rgb(205, 141, 141);
+    --yellow: rgb(241, 211, 89);
+    --blue: rgb(26, 175, 255);
+}
