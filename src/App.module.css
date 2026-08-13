@@ -122,3 +122,21 @@
     justify-content: center;
     flex-shrink: 0;
 }
+
+.hints {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.hints * {
+    margin: 0px;
+}
+
+.hint {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    /* gap: 10px; */
+}

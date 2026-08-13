@@ -3,6 +3,7 @@
     text-decoration: unset;
     border-radius: 5px;
     margin: 0px;
+    border: 1px solid black;
 }
 
 .black {
@@ -13,7 +14,6 @@
 .white {
     background-color: #f5f5f5;
     color: #222;
-    border: 1px solid #ccc;
 }
 
 .brown {

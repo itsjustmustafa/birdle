@@ -2,6 +2,7 @@ import { isValidElement } from 'react';
 import type { ReactNode } from 'react';
 import styles from './multi_item_result.module.css';
 import clsx from "clsx";
+import { addSoftHyphenToLongWords } from '../utils/soft_hyphen';
 
 export type MultiItemResultProps = {
     items: (string | ReactNode)[]
@@ -45,14 +46,10 @@ const evaluateListsUnordered = (
 };
 
 
+
 export function MultiItemResult({ items, targetItems }: MultiItemResultProps) {
     const result = evaluateListsUnordered(items, targetItems);
 
-    const addSoftHyphenToLongWords = (text: string) =>
-        text.replace(/\S{11,}/g, word => {
-            const midpoint = Math.floor(word.length / 2);
-            return word.slice(0, midpoint) + '\u00AD' + word.slice(midpoint);
-        });
 
     return (
         <div className={clsx(styles.container,

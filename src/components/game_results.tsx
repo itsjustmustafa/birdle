@@ -7,10 +7,11 @@ export type GameResultsProps = {
     answer: string;
     date: string;
     averageTotalGuesses: string;
+    usedHints: boolean;
 }
 
 
-export function GameResults({ totalGuesses, answer, date, averageTotalGuesses }: GameResultsProps) {
+export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, usedHints }: GameResultsProps) {
     const [copied, setCopied] = useState<boolean>(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -18,7 +19,10 @@ export function GameResults({ totalGuesses, answer, date, averageTotalGuesses }:
 
     function copyResults() {
         navigator.clipboard.writeText(
-            `**birdle**\n${date}\n${totalGuesses} ${guessesString}\nAverage Guesses: ${averageTotalGuesses}\nhttps://mzza.xyz/birdle/`
+            `**birdle**\n` +
+            `${date}\n${totalGuesses} ${guessesString}` + (usedHints ? " (Used hints)" : "") + "\n" +
+            `Average Guesses: ${averageTotalGuesses}\n` +
+            `https://mzza.xyz/birdle/`
         );
 
         setCopied(true);

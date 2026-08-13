@@ -51,3 +51,15 @@ body {
     --yellow: rgb(241, 211, 89);
     --blue: rgb(26, 175, 255);
 }
+
+button {
+    font-weight: bold;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+}

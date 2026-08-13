@@ -1,0 +1,9 @@
+.hints {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hints p {
+    margin: 0px;
+}

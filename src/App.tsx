@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import seedrandom from 'seedrandom';
 import styles from './App.module.css';
 import birdData from './data/birds_full_data.json';
@@ -11,6 +11,9 @@ import { NumericalResult } from './components/numerical_result';
 import { FittedImage } from './components/fitted_image';
 import birdle_logo_outline from './assets/birdle_logo_outline.png';
 import { GameResults } from './components/game_results';
+import { addSoftHyphenToLongWords } from './utils/soft_hyphen';
+import { BirdIcon } from './components/bird_icon';
+import { GameHints } from './components/game_hints';
 
 const TOTAL_BIRDS = birdData.length;
 
@@ -25,6 +28,7 @@ const LocalStorageKey = {
   GuessIndices: 'guessIndices',
   Date: 'date',
   GameHistory: 'history',
+  ShowHints: 'showHints',
 } as const;
 
 function autocompleteSort(a: string, b: string, query: string) {
@@ -89,11 +93,23 @@ function App() {
       localStorage.removeItem(LocalStorageKey.LastGameDate);
       localStorage.removeItem(LocalStorageKey.GameWon);
       localStorage.removeItem(LocalStorageKey.GuessIndices);
+      localStorage.removeItem(LocalStorageKey.ShowHints);
     }
     return lastGameWasToday && lastGameWon;
   });
+  const [showingHints, setShowingHints] = useState<boolean>(() => {
+    const lastGameDate = localStorage.getItem(LocalStorageKey.LastGameDate);
+    const lastGameWasToday = lastGameDate === today;
+    const showingHintsInStorage = localStorage.getItem(LocalStorageKey.ShowHints) == 'true';
+    return lastGameWasToday && showingHintsInStorage;
+  });
+
 
   const targetBird = birdData[targetIndex];
+  const hints = [targetBird.did_you_know, targetBird.call_description].filter(value => value !== "Unspecified");
+  const hintTitles = [
+    targetBird.did_you_know !== "Unspecified" && "Did you know",
+    targetBird.call_description !== "Unspecifed" && "Call description"].filter(Boolean);
 
   const guessedBirdNames = guessIndices.map(birdIndex => birdData[birdIndex].name.toLowerCase());
 
@@ -117,12 +133,12 @@ function App() {
   }
 
   function handleSubmitGuess(guessIndex: number) {
+    localStorage.setItem(LocalStorageKey.LastGameDate, today);
+    localStorage.setItem(LocalStorageKey.GuessIndices, JSON.stringify([...guessIndices, guessIndex]));
     const totalGuesses = guessIndices.length + 1;
     if (guessIndex == targetIndex) {
       setGameWon(true);
       localStorage.setItem(LocalStorageKey.GameWon, 'true');
-      localStorage.setItem(LocalStorageKey.LastGameDate, today);
-      localStorage.setItem(LocalStorageKey.GuessIndices, JSON.stringify([...guessIndices, guessIndex]));
       const gameHistory: number[] = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
       gameHistory.push(totalGuesses);
       localStorage.setItem(LocalStorageKey.GameHistory, JSON.stringify(gameHistory));
@@ -135,6 +151,11 @@ function App() {
   }
 
   const selectedBird = currentGuessIndex == null ? null : birdData[currentGuessIndex];
+
+  function handleShowingHints() {
+    setShowingHints(true);
+    localStorage.setItem(LocalStorageKey.ShowHints, 'true');
+  }
 
   return (
     <>
@@ -159,8 +180,17 @@ function App() {
             answer={targetBird.name}
             date={today}
             averageTotalGuesses={getAverageScore()}
+            usedHints={showingHints}
           />
         )}
+        {!gameWon && hints.length > 0 && guessIndices.length >= 8 && <GameHints
+          showingHints={showingHints}
+          hints={hints}
+          hintTitles={hintTitles}
+          totalGuesses={guessIndices.length}
+          birdName={targetBird.name}
+          onShowingHints={handleShowingHints}
+        />}
         <div className={styles.table}>
           <div className={styles.titleRow}>
             <div className={clsx(styles.title, styles.nameCol)}>Name</div>
@@ -180,35 +210,37 @@ function App() {
                 styles.guess,
                 styles.nameCol,
                 birdData[guessIndex].name == targetBird.name && styles.correct
-              )}><p>{birdData[guessIndex].name}</p></div>
+              )}><p>{addSoftHyphenToLongWords(birdData[guessIndex].name)}</p></div>
               <div className={clsx(styles.guess, styles.imageCol)}>
-                <FittedImage src={birdData[guessIndex].image_url} url={birdData[guessIndex].url} />
+                <FittedImage src={birdData[guessIndex].image_url} url={birdData[guessIndex].url} key={`${guessIndex}_image`} />
               </div>
               <div className={clsx(styles.guess, styles.multiItemCol)}>
-                <MultiItemResult items={[birdData[guessIndex].order, birdData[guessIndex].family]} targetItems={[targetBird.order, targetBird.family]} />
+                <MultiItemResult items={[birdData[guessIndex].order, birdData[guessIndex].family]} targetItems={[targetBird.order, targetBird.family]} key={`${guessIndex}_taxonomy`} />
               </div>
               <div className={clsx(styles.guess, styles.multiItemCol)}>
-                <MultiItemResult items={birdData[guessIndex].bird_shape} targetItems={targetBird.bird_shape} />
+                <MultiItemResult items={birdData[guessIndex].bird_shape} targetItems={targetBird.bird_shape} key={`${guessIndex}_shape`} />
               </div>
               <div className={clsx(styles.guess, styles.multiItemCol)}>
                 <MultiItemResult
                   items={(birdData[guessIndex].colours as ColourName[]).map(colourName => <ColourTag colourName={colourName} />)}
-                  targetItems={(targetBird.colours as ColourName[]).map(colourName => <ColourTag colourName={colourName} />)} />
+                  targetItems={(targetBird.colours as ColourName[]).map(colourName => <ColourTag colourName={colourName} />)}
+                  key={`${guessIndex}_colour`}
+                />
               </div>
               <div className={clsx(styles.guess, styles.multiItemCol)}>
-                <MultiItemResult items={birdData[guessIndex].bird_groups} targetItems={targetBird.bird_groups} />
+                <MultiItemResult items={birdData[guessIndex].bird_groups} targetItems={targetBird.bird_groups} key={`${guessIndex}_group`} />
               </div>
               <div className={clsx(styles.guess, styles.numericalCol)}>
-                <NumericalResult value={birdData[guessIndex].average_size} targetValue={targetBird.average_size} displayFormat={(value) => `${value}cm`} />
+                <NumericalResult value={birdData[guessIndex].average_size} targetValue={targetBird.average_size} displayFormat={(value) => `${value}cm`} key={`${guessIndex}_size`} />
               </div>
               <div className={clsx(styles.guess, styles.numericalCol)}>
-                <NumericalResult value={birdData[guessIndex].average_weight} targetValue={targetBird.average_weight} displayFormat={(value) => `${value}g`} />
+                <NumericalResult value={birdData[guessIndex].average_weight} targetValue={targetBird.average_weight} displayFormat={(value) => `${value}g`} key={`${guessIndex}_weight`} />
               </div>
               <div className={clsx(styles.guess, styles.multiItemCol)}>
-                <MultiItemResult items={birdData[guessIndex].distinctive_features} targetItems={targetBird.distinctive_features} />
+                <MultiItemResult items={birdData[guessIndex].distinctive_features} targetItems={targetBird.distinctive_features} key={`${guessIndex}_features`} />
               </div>
               <div className={clsx(styles.guess, styles.statusCol)}>
-                <ConservationStatusMap statuses={birdData[guessIndex].conservation_status as StateStatuses} targetStatuses={targetBird.conservation_status as StateStatuses} />
+                <ConservationStatusMap statuses={birdData[guessIndex].conservation_status as StateStatuses} targetStatuses={targetBird.conservation_status as StateStatuses} key={`${guessIndex}_map`} />
               </div>
             </div>
           ))}
