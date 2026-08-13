@@ -106,6 +106,8 @@ function App() {
 
 
   const targetBird = birdData[targetIndex];
+  // targetBird.did_you_know = "Unspecified";
+  // targetBird.call_description = "Unspecified";
   const hints = [targetBird.did_you_know, targetBird.call_description].filter(value => value !== "Unspecified");
   const hintTitles = [
     targetBird.did_you_know !== "Unspecified" && "Did you know",

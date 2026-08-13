@@ -10,24 +10,17 @@ export type GameHintsProps = {
     onShowingHints: () => void;
 };
 
-const censorBirdName = (text: string, birdName: string) =>
-    text.split(new RegExp(`(${birdName})`, "gi")).map((part, i) =>
-        part.toLowerCase() === birdName.toLowerCase()
-            ? <BirdIcon key={i} />
-            : <p>{part}</p>
-    );
-
 const FIRST_HINT_THRESHOLD = 8;
 const SECOND_HINT_THRESHOLD = 12;
 
+const censorBirdName = (hint: string, birdName: string) =>
+    hint.split(new RegExp(`(${birdName})`, "gi")).map((part, i) =>
+        part.toLowerCase() === birdName.toLowerCase()
+            ? <BirdIcon key={i} />
+            : part
+    );
 
 export function GameHints({ hints, hintTitles, showingHints, birdName, totalGuesses, onShowingHints }: GameHintsProps) {
-    const censorBirdName = (hint: string) =>
-        hint.split(new RegExp(`(${birdName})`, "gi")).map((part, i) =>
-            part.toLowerCase() === birdName.toLowerCase()
-                ? <BirdIcon key={i} />
-                : part
-        );
 
     return (
         <div className={styles.hints}>
@@ -35,10 +28,10 @@ export function GameHints({ hints, hintTitles, showingHints, birdName, totalGues
                 <button onClick={onShowingHints}>Show a hint?</button>
             )}
             {showingHints && totalGuesses >= FIRST_HINT_THRESHOLD && (
-                <p><strong>{hintTitles[0]}: </strong>{censorBirdName(hints[0])}</p>
+                <p><strong>{hintTitles[0]}: </strong>{censorBirdName(hints[0], birdName)}</p>
             )}
             {showingHints && totalGuesses >= SECOND_HINT_THRESHOLD && hints.length > 1 && (
-                <p><strong>{hintTitles[1]}: </strong>{censorBirdName(hints[1])}</p>
+                <p><strong>{hintTitles[1]}: </strong>{censorBirdName(hints[1], birdName)}</p>
             )}
         </div>
     );
