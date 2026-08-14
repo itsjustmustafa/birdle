@@ -76,7 +76,7 @@ function App() {
 
   const [today] = useState<string>(getTodaysDate());
   const [targetIndex] = useState<number>(Math.floor(seedrandom(today)() * TOTAL_BIRDS));
-  console.log(birdData[targetIndex].name);
+  console.log(birdData[(targetIndex + 1) % TOTAL_BIRDS].name);
   const [inputValue, setInputValue] = useState<string>("");
   const [currentGuessIndex, setCurrentGuessIndex] = useState<number | null>(null);
   const [guessIndices, setGuessIndices] = useState<number[]>(() => {
