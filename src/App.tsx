@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import seedrandom from 'seedrandom';
 import styles from './App.module.css';
 import birdData from './data/birds_full_data.json';
@@ -12,7 +12,6 @@ import { FittedImage } from './components/fitted_image';
 import birdle_logo_outline from './assets/birdle_logo_outline.png';
 import { GameResults } from './components/game_results';
 import { addSoftHyphenToLongWords } from './utils/soft_hyphen';
-import { BirdIcon } from './components/bird_icon';
 import { GameHints } from './components/game_hints';
 
 const TOTAL_BIRDS = birdData.length;
@@ -29,6 +28,7 @@ const LocalStorageKey = {
   Date: 'date',
   GameHistory: 'history',
   ShowHints: 'showHints',
+  Cheater: 'google-analytics::initialised',
 } as const;
 
 function autocompleteSort(a: string, b: string, query: string) {
@@ -63,6 +63,10 @@ function readNumberArrayFromStorage(key: string): number[] {
   }
 }
 
+function readBooleanFromStorage(key: string): boolean {
+  return localStorage.getItem(key) == 'true';
+}
+
 function getAverageScore() {
   const allScores = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
   return (allScores.reduce((sum, score) => sum + score, 0) / allScores.length).toFixed(1);
@@ -87,7 +91,7 @@ function App() {
 
   const [gameWon, setGameWon] = useState<boolean>(() => {
     const lastGameDate = localStorage.getItem(LocalStorageKey.LastGameDate);
-    const lastGameWon = localStorage.getItem(LocalStorageKey.GameWon) == 'true';
+    const lastGameWon = readBooleanFromStorage(LocalStorageKey.GameWon);
     const lastGameWasToday = lastGameDate === today;
     if (!lastGameWasToday) {
       localStorage.removeItem(LocalStorageKey.LastGameDate);
@@ -100,18 +104,26 @@ function App() {
   const [showingHints, setShowingHints] = useState<boolean>(() => {
     const lastGameDate = localStorage.getItem(LocalStorageKey.LastGameDate);
     const lastGameWasToday = lastGameDate === today;
-    const showingHintsInStorage = localStorage.getItem(LocalStorageKey.ShowHints) == 'true';
+    const showingHintsInStorage = readBooleanFromStorage(LocalStorageKey.ShowHints);
     return lastGameWasToday && showingHintsInStorage;
   });
+  const [googleAnalytics, setGoogleAnalytics] = useState<boolean>(readBooleanFromStorage(LocalStorageKey.Cheater));
+
+  // useEffect(() => {
+  //   const currentGameHistory = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
+  //   if (currentGameHistory.includes(1)) {
+  //     localStorage.setItem(LocalStorageKey.Cheater, 'true');
+  //     setGoogleAnalytics(true);
+  //   }
+  // }, []);
 
 
   const targetBird = birdData[targetIndex];
-  // targetBird.did_you_know = "Unspecified";
-  // targetBird.call_description = "Unspecified";
+
   const hints = [targetBird.did_you_know, targetBird.call_description].filter(value => value !== "Unspecified");
   const hintTitles = [
     targetBird.did_you_know !== "Unspecified" && "Did you know",
-    targetBird.call_description !== "Unspecifed" && "Call description"].filter(Boolean);
+    targetBird.call_description !== "Unspecifed" && "Call description"].filter(Boolean) as string[];
 
   const guessedBirdNames = guessIndices.map(birdIndex => birdData[birdIndex].name.toLowerCase());
 
@@ -183,6 +195,7 @@ function App() {
             date={today}
             averageTotalGuesses={getAverageScore()}
             usedHints={showingHints}
+            isCheater={googleAnalytics}
           />
         )}
         {!gameWon && hints.length > 0 && guessIndices.length >= 8 && <GameHints
