@@ -8,22 +8,28 @@ export type GameResultsProps = {
     date: string;
     averageTotalGuesses: string;
     usedHints: boolean;
+    isCheater: boolean;
 }
 
 
-export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, usedHints }: GameResultsProps) {
+export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, usedHints, isCheater }: GameResultsProps) {
     const [copied, setCopied] = useState<boolean>(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const guessesString = totalGuesses > 1 ? "guesses" : "guess";
 
     function copyResults() {
-        navigator.clipboard.writeText(
-            `**birdle**\n` +
-            `${date}\n${totalGuesses} ${guessesString}` + (usedHints ? " (Used hints)" : "") + "\n" +
-            `Average Guesses: ${averageTotalGuesses}\n` +
-            `https://mzza.xyz/birdle/`
-        );
+        if (!isCheater) {
+
+            navigator.clipboard.writeText(
+                `**birdle**\n` +
+                `${date}\n${totalGuesses} ${guessesString}` + (usedHints ? " (Used hints)" : "") + "\n" +
+                `Average Guesses: ${averageTotalGuesses}\n` +
+                `https://mzza.xyz/birdle/`
+            );
+        } else {
+            navigator.clipboard.writeText("You think ur so smart, huh?");
+        }
 
         setCopied(true);
 
@@ -43,7 +49,7 @@ export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, u
 
             <button className={styles.copyButton} onClick={copyResults}>
                 <p>
-                    {copied ? "Copied" : "Share"}
+                    {copied ? (isCheater ? "Ya goddamn cheater" : "Copied") : "Share"}
                 </p>
                 <Copy size={16} />
             </button>
