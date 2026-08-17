@@ -2,8 +2,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: min(100%, 700px);
+    gap: 10px;
 }
 
 .hints p {
     margin: 0px;
+    padding: 10px;
+    background-color: #FFFFFF55;
+    border-radius: 10px;
 }

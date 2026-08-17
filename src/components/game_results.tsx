@@ -7,12 +7,12 @@ export type GameResultsProps = {
     answer: string;
     date: string;
     averageTotalGuesses: string;
-    usedHints: boolean;
+    totalUsedHints: number;
     isCheater: boolean;
 }
 
 
-export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, usedHints, isCheater }: GameResultsProps) {
+export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, totalUsedHints, isCheater }: GameResultsProps) {
     const [copied, setCopied] = useState<boolean>(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -23,7 +23,7 @@ export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, u
 
             navigator.clipboard.writeText(
                 `**birdle**\n` +
-                `${date}\n${totalGuesses} ${guessesString}` + (usedHints ? " (Used hints)" : "") + "\n" +
+                `${date}\n${totalGuesses} ${guessesString}` + (totalUsedHints > 0 ? ` (${totalUsedHints} ${totalUsedHints > 1 ? "hints" : "hint"} used)` : "") + "\n" +
                 `Average Guesses: ${averageTotalGuesses}\n` +
                 `https://mzza.xyz/birdle/`
             );

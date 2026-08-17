@@ -3,15 +3,11 @@ import styles from './game_hints.module.css';
 
 export type GameHintsProps = {
     hints: string[];
-    hintTitles: string[];
+    hintsShown: string[];
     birdName: string;
-    totalGuesses: number;
-    showingHints: boolean;
-    onShowingHints: () => void;
+    showEverything: boolean;
+    onShowingHint: (hintTitle: string) => void;
 };
-
-const FIRST_HINT_THRESHOLD = 8;
-const SECOND_HINT_THRESHOLD = 12;
 
 const censorBirdName = (hint: string, birdName: string) =>
     hint.split(new RegExp(`(${birdName})`, "gi")).map((part, i) =>
@@ -20,19 +16,39 @@ const censorBirdName = (hint: string, birdName: string) =>
             : part
     );
 
-export function GameHints({ hints, hintTitles, showingHints, birdName, totalGuesses, onShowingHints }: GameHintsProps) {
-
+export function GameHints({
+    hints,
+    hintsShown,
+    birdName,
+    showEverything,
+    onShowingHint,
+}: GameHintsProps) {
     return (
         <div className={styles.hints}>
-            {!showingHints && totalGuesses >= FIRST_HINT_THRESHOLD && (
-                <button onClick={onShowingHints}>Show a hint?</button>
-            )}
-            {showingHints && totalGuesses >= FIRST_HINT_THRESHOLD && (
-                <p><strong>{hintTitles[0]}: </strong>{censorBirdName(hints[0], birdName)}</p>
-            )}
-            {showingHints && totalGuesses >= SECOND_HINT_THRESHOLD && hints.length > 1 && (
-                <p><strong>{hintTitles[1]}: </strong>{censorBirdName(hints[1], birdName)}</p>
-            )}
+            {hints.map((hint) => {
+                const [title, ...textParts] = hint.split(": ");
+                const text = textParts.join(": ");
+
+                const isShown = showEverything || hintsShown.includes(title);
+
+                if (isShown) {
+                    return (
+                        <p key={title}>
+                            <strong>{title}: </strong>
+                            {censorBirdName(text, birdName)}
+                        </p>
+                    );
+                }
+
+                return (
+                    <button
+                        key={title}
+                        onClick={() => onShowingHint(title)}
+                    >
+                        Reveal <i>{title}</i>
+                    </button>
+                );
+            })}
         </div>
     );
 }

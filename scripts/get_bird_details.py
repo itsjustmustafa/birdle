@@ -140,6 +140,12 @@ HARDCODED = {
     "White-winged Black Tern": {
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Chlidonias_leucopterus_2023-04-08.jpg/500px-Chlidonias_leucopterus_2023-04-08.jpg",
     },
+    "Yellow-tufted Honeyeater": {
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Lichenostomus_melanops_-_Glen_Davis.jpg/500px-Lichenostomus_melanops_-_Glen_Davis.jpg",
+    },
+    "Zebra Finch": {
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Zebra_finch_group.png/500px-Zebra_finch_group.png",
+    },
 }
 
 
@@ -225,8 +231,18 @@ def scrape_bird(url, initial_bird_data):
     }
 
     # --------------------------------------
-    # Call Description
+    # Descriptions
     # --------------------------------------
+
+    profile_description = (
+        extract_single_field_text(soup, "field-name-field-profiledescription")
+        or "Unspecified"
+    )
+
+    similar_species = (
+        extract_single_field_text(soup, "field-name-field-similar-species")
+        or "Unspecified"
+    )
 
     call_description = (
         extract_single_field_text(soup, "field-name-field-call-description")
@@ -240,15 +256,15 @@ def scrape_bird(url, initial_bird_data):
 
     return {
         "name": initial_bird_data["name"],
-        "order": initial_bird_data["order"]
-        or HARDCODED.get(initial_bird_data["name"]).get("order")
+        "order": HARDCODED.get(initial_bird_data["name"], {}).get("order")
+        or initial_bird_data["order"]
         or "Unspecified",
-        "family": initial_bird_data["family"]
-        or HARDCODED.get(initial_bird_data["name"]).get("family")
+        "family": HARDCODED.get(initial_bird_data["name"], {}).get("family")
+        or initial_bird_data["family"]
         or "Unspecified",
         "bird_groups": bird_groups,
-        "image_url": image_url
-        or HARDCODED.get(initial_bird_data["name"]).get("image_url"),
+        "image_url": HARDCODED.get(initial_bird_data["name"], {}).get("image_url")
+        or image_url,
         "colours": colours,
         "size": size,
         "bird_shape": bird_shape,
@@ -258,6 +274,8 @@ def scrape_bird(url, initial_bird_data):
         "conservation_status": conservation_status,
         "call_description": call_description,
         "did_you_know": did_you_know_description,
+        "description": profile_description,
+        "similar_species": similar_species,
     }
 
 

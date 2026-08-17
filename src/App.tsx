@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import seedrandom from 'seedrandom';
 import styles from './App.module.css';
 import birdData from './data/birds_full_data.json';
@@ -28,6 +28,7 @@ const LocalStorageKey = {
   Date: 'date',
   GameHistory: 'history',
   ShowHints: 'showHints',
+  HintsShown: 'hintsShown',
   Cheater: 'google-analytics::initialised',
 } as const;
 
@@ -63,6 +64,20 @@ function readNumberArrayFromStorage(key: string): number[] {
   }
 }
 
+function readStringArrayFromStorage(key: string): string[] {
+  try {
+    const array = JSON.parse(
+      localStorage.getItem(key) ?? '[]'
+    );
+
+    return Array.isArray(array)
+      ? array
+      : [];
+  } catch {
+    return []
+  }
+}
+
 function readBooleanFromStorage(key: string): boolean {
   return localStorage.getItem(key) == 'true';
 }
@@ -70,6 +85,10 @@ function readBooleanFromStorage(key: string): boolean {
 function getAverageScore() {
   const allScores = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
   return (allScores.reduce((sum, score) => sum + score, 0) / allScores.length).toFixed(1);
+}
+
+function simplifyText(text: string) {
+  return text.toLowerCase().replace(/[\s\p{P}]/gu, '');
 }
 
 function App() {
@@ -98,17 +117,17 @@ function App() {
       localStorage.removeItem(LocalStorageKey.GameWon);
       localStorage.removeItem(LocalStorageKey.GuessIndices);
       localStorage.removeItem(LocalStorageKey.ShowHints);
+      localStorage.removeItem(LocalStorageKey.HintsShown);
     }
     return lastGameWasToday && lastGameWon;
   });
-  const [showingHints, setShowingHints] = useState<boolean>(() => {
+  const [googleAnalytics, _setGoogleAnalytics] = useState<boolean>(readBooleanFromStorage(LocalStorageKey.Cheater));
+
+  const [hintsShown, setHintsShown] = useState<string[]>(() => {
     const lastGameDate = localStorage.getItem(LocalStorageKey.LastGameDate);
     const lastGameWasToday = lastGameDate === today;
-    const showingHintsInStorage = readBooleanFromStorage(LocalStorageKey.ShowHints);
-    return lastGameWasToday && showingHintsInStorage;
+    return lastGameWasToday ? readStringArrayFromStorage(LocalStorageKey.HintsShown) : [];
   });
-  const [googleAnalytics, setGoogleAnalytics] = useState<boolean>(readBooleanFromStorage(LocalStorageKey.Cheater));
-
   // useEffect(() => {
   //   const currentGameHistory = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
   //   if (currentGameHistory.includes(1)) {
@@ -120,10 +139,12 @@ function App() {
 
   const targetBird = birdData[targetIndex];
 
-  const hints = [targetBird.did_you_know, targetBird.call_description].filter(value => value !== "Unspecified");
-  const hintTitles = [
-    targetBird.did_you_know !== "Unspecified" && "Did you know",
-    targetBird.call_description !== "Unspecifed" && "Call description"].filter(Boolean) as string[];
+  const hints = [
+    "Description: " + targetBird.description,
+    "Did you know: " + targetBird.did_you_know,
+    "Similar Species: " + targetBird.similar_species,
+    "Call description: " + targetBird.call_description,
+  ].filter(value => !value.endsWith("Unspecified"));
 
   const guessedBirdNames = guessIndices.map(birdIndex => birdData[birdIndex].name.toLowerCase());
 
@@ -133,7 +154,8 @@ function App() {
     ? [] :
     allBirdSuggestions.filter(
       birdSuggestion =>
-        birdSuggestion.label.toLowerCase().includes(query)
+        // birdSuggestion.label.toLowerCase().includes(query)
+        simplifyText(birdSuggestion.label).includes(simplifyText(query))
         && !guessedBirdNames.includes(birdSuggestion.label.toLowerCase()));
 
   suggestions.sort((a, b) => autocompleteSort(a.label.toLowerCase(), b.label.toLowerCase(), query));
@@ -164,12 +186,13 @@ function App() {
     });
   }
 
-  const selectedBird = currentGuessIndex == null ? null : birdData[currentGuessIndex];
-
-  function handleShowingHints() {
-    setShowingHints(true);
-    localStorage.setItem(LocalStorageKey.ShowHints, 'true');
+  function handleShowingHint(hintTitle: string) {
+    const newHintsShownList = [...hintsShown, hintTitle];
+    localStorage.setItem(LocalStorageKey.HintsShown, JSON.stringify(newHintsShownList));
+    setHintsShown(prev => [...prev, hintTitle]);
   }
+
+  const selectedBird = currentGuessIndex == null ? null : birdData[currentGuessIndex];
 
   return (
     <>
@@ -194,17 +217,17 @@ function App() {
             answer={targetBird.name}
             date={today}
             averageTotalGuesses={getAverageScore()}
-            usedHints={showingHints}
+            totalUsedHints={hintsShown.length}
             isCheater={googleAnalytics}
           />
         )}
-        {!gameWon && hints.length > 0 && guessIndices.length >= 8 && <GameHints
-          showingHints={showingHints}
+        {((!gameWon && hints.length > 0 && guessIndices.length >= 8) || gameWon) && <GameHints
           hints={hints}
-          hintTitles={hintTitles}
-          totalGuesses={guessIndices.length}
+          hintsShown={hintsShown}
           birdName={targetBird.name}
-          onShowingHints={handleShowingHints}
+          // onShowingHint={(hintTitle) => setHintsShown(prev => [...prev, hintTitle])}
+          onShowingHint={handleShowingHint}
+          showEverything={gameWon}
         />}
         <div className={styles.table}>
           <div className={styles.titleRow}>
