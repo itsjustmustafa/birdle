@@ -50,6 +50,11 @@ body {
     --red: rgb(205, 141, 141);
     --yellow: rgb(241, 211, 89);
     --blue: rgb(26, 175, 255);
+
+    --green-15 : rgb(154, 188, 154, 15%);
+     --red-15: rgb(205, 141, 141, 15%);
+    --yellow-15: rgb(241, 211, 89, 15%);
+    --blue-15: rgb(26, 175, 255, 15%);
 }
 
 button {
@@ -62,4 +67,8 @@ button {
     height: 40px;
     justify-content: center;
     align-items: center;
+}
+
+a {
+  color: var(--blue);
 }

@@ -1,8 +1,9 @@
-import { Copy, Trophy, X } from 'lucide-react';
+import { Copy, Image, Trophy } from 'lucide-react';
 import styles from './game_results.module.css';
 import React, { useRef, useState } from 'react';
 import clsx from 'clsx';
 import { ScoreRow } from './score_row';
+import html2canvas from 'html2canvas';
 
 export type GameResultsProps = {
     totalGuesses: number;
@@ -55,16 +56,26 @@ function plural(word: string, count: number) {
 
 
 
-export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, totalUsedHints, isCheater, playStreak }: GameResultsProps) {
+export function GameResults({
+    totalGuesses,
+    answer,
+    date,
+    averageTotalGuesses,
+    totalUsedHints,
+    isCheater,
+    playStreak
+}: GameResultsProps) {
     const [copied, setCopied] = useState<boolean>(false);
     const [showScoreToast, setShowScoreToast] = useState<boolean>(false);
     const [toastIsClosing, setToastIsClosing] = useState<boolean>(false);
+    const toastRef = useRef<HTMLDivElement>(null);
 
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const scores = scoreBreakdown(totalGuesses, totalUsedHints, playStreak);
 
-    console.log(scores)
+    // console.log(scores)
+
 
     // ** birdle **
     // 2026 -08 - 31
@@ -98,6 +109,46 @@ export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, t
 
     }
 
+    const copyAsImage = async (): Promise<void> => {
+        if (!toastRef.current) return;
+
+        try {
+            const canvas = await html2canvas(toastRef.current, {
+                scale: 2,
+                backgroundColor: null,
+                useCORS: true,
+                onclone: (clonedDocument) => {
+                    const clonedToast = clonedDocument.querySelector(
+                        `.${styles.toast}`
+                    ) as HTMLElement | null;
+
+                    if (!clonedToast) return;
+
+                    clonedToast.style.left = "auto";
+                    clonedToast.style.top = "auto";
+                    clonedToast.style.transform = "none";
+                    clonedToast.style.animation = "none";
+                }
+            });
+
+            const blob = await new Promise<Blob | null>((resolve) => {
+                canvas.toBlob(resolve, 'image/png');
+            });
+
+            if (!blob) {
+                throw new Error('Failed to generate toast image');
+            }
+
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    'image/png': blob,
+                }),
+            ]);
+        } catch (error) {
+            console.error('Failed to copy toast as image:', error);
+        }
+    };
+
     function handleOpenToast() {
         setShowScoreToast(true);
     }
@@ -126,31 +177,65 @@ export function GameResults({ totalGuesses, answer, date, averageTotalGuesses, t
             {showScoreToast && (
                 <>
                     <span className={clsx(styles.screenShadow, toastIsClosing && styles.fadeOut)} onClick={handleCloseToast} />
-                    <div className={clsx(styles.toast, toastIsClosing && styles.toastOut)} onAnimationEnd={handleToastAnimationEnd}>
-                        <button className={styles.closeButton} onClick={handleCloseToast}>
+                    <div
+                        className={clsx(styles.toast, toastIsClosing && styles.toastOut)}
+                        onAnimationEnd={handleToastAnimationEnd}
+                        ref={toastRef}>
+                        {/* <button className={styles.closeButton} onClick={handleCloseToast}>
                             <X size={16} />
-                        </button>
+                        </button> */}
+                        <p className={styles.date}>{date}</p>
+                        <a className={styles.link} href="https://mzza.xyz/birdle/">{"mzza.xyz/birdle"}</a>
                         <h1>{scores.finalScore} pts</h1>
-                        <ScoreRow description='You won!' scoreDelta={scores.baseScore} emoji={'✅'} />
+                        <ScoreRow
+                            description='You won!'
+                            scoreDelta={scores.baseScore}
+                            emoji={'✅'}
+                        />
                         {totalGuesses <= 10 &&
-                            <ScoreRow description={`Took only ${totalGuesses} ${plural("guess", totalGuesses)}!`} scoreDelta={scores.totalGuessesDelta} emoji={'🧐'} />
+                            <ScoreRow
+                                description={`Took only ${totalGuesses} ${plural("guess", totalGuesses)}!`}
+                                scoreDelta={scores.totalGuessesDelta}
+                                emoji={'🧐'}
+                            />
                         }
                         {totalGuesses > 10 &&
-                            <ScoreRow description={`Took ${totalGuesses} ${plural("guess", totalGuesses)}`} scoreDelta={scores.totalGuessesDelta} emoji={'🤔'} />
+                            <ScoreRow
+                                description={`Took ${totalGuesses} ${plural("guess", totalGuesses)}`}
+                                scoreDelta={scores.totalGuessesDelta}
+                                emoji={'🤔'}
+                            />
                         }
                         {totalUsedHints === 0 &&
-                            <ScoreRow description={'No Hints Used!'} scoreDelta={scores.noHintBonus} emoji={'🧠'} />
+                            <ScoreRow
+                                description={'No Hints Used!'}
+                                scoreDelta={scores.noHintBonus}
+                                emoji={'🧠'}
+                            />
                         }
                         {totalUsedHints > 0 &&
-                            <ScoreRow description={`${totalUsedHints} ${plural("hint", totalUsedHints)} used`} scoreDelta={-scores.totalHintsSubtracted} emoji='👀' />
+                            <ScoreRow
+                                description={`${totalUsedHints} ${plural("hint", totalUsedHints)} used`}
+                                scoreDelta={-scores.totalHintsSubtracted}
+                                emoji='👀'
+                            />
                         }
-                        <ScoreRow description={`${playStreak}-day streak!`} scoreDelta={scores.totalStreakAdded} emoji='🔥' />
-                        <button className={styles.copyButton} onClick={copyResults}>
-                            <p>
-                                {copied ? (isCheater ? "Ya goddamn cheater" : "Copied") : "Share"}
-                            </p>
-                            <Copy size={16} />
-                        </button>
+                        <ScoreRow
+                            description={`${playStreak}-day streak!`}
+                            scoreDelta={scores.totalStreakAdded}
+                            emoji='🔥'
+                        />
+                        <div className={styles.shareButtons}>
+                            <button className={styles.copyTextButton} onClick={copyResults}>
+                                {copied ? (isCheater ? "Ya goddamn cheater" : "Copied Results") : "Copy Results"}
+                                <Copy size={16} />
+                            </button>
+
+                            <button className={styles.copyImageButton} onClick={copyAsImage}>
+                                Copy Image
+                                <Image size={16} />
+                            </button>
+                        </div>
                     </div>
                 </>
             )}

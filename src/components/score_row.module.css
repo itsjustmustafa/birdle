@@ -8,16 +8,17 @@
     border-radius: 10px;
     border: solid 4px;
     border-color: var(--yellow);
+    background-color: var(yellow-15);
 }
 
 .scoreRow.good {
     border-color: var(--green);
-    background: rgb(from var(--green) r g b / 20%);
+    background-color: var(--green-15);
 }
 
 .scoreRow.bad {
     border-color: var(--red);
-    background: rgb(from var(--red) r g b / 20%);
+    background-color: var(--red-15);
 }
 
 .scoreRow p{
