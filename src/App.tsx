@@ -10,9 +10,18 @@ import { ColourTag, type ColourName } from './components/colour_tag';
 import { NumericalResult } from './components/numerical_result';
 import { FittedImage } from './components/fitted_image';
 import birdle_logo_outline from './assets/birdle_logo_outline.png';
-import { GameResults } from './components/game_results';
+import { GameResults, scoreBreakdown } from './components/game_results';
 import { addSoftHyphenToLongWords } from './utils/soft_hyphen';
 import { GameHints } from './components/game_hints';
+import {
+  getAverageScore,
+  getDate,
+  LocalStorageKey,
+  readBooleanFromStorage,
+  readNumberArrayFromStorage,
+  readNumberFromStorage,
+  readStringArrayFromStorage
+} from './utils/storage_tools';
 
 const TOTAL_BIRDS = birdData.length;
 
@@ -21,16 +30,7 @@ const TOTAL_BIRDS = birdData.length;
 //   return [...new Set(birdData.flatMap(bird => bird.colours))];
 // }
 
-const LocalStorageKey = {
-  LastGameDate: "lastGameDate",
-  GameWon: 'gameWon',
-  GuessIndices: 'guessIndices',
-  Date: 'date',
-  GameHistory: 'history',
-  ShowHints: 'showHints',
-  HintsShown: 'hintsShown',
-  Cheater: 'google-analytics::initialised',
-} as const;
+
 
 function autocompleteSort(a: string, b: string, query: string) {
   const q = query.toLowerCase();
@@ -44,48 +44,7 @@ function autocompleteSort(a: string, b: string, query: string) {
   );
 }
 
-function getTodaysDate() {
-  const date = new Date();
-  return date.toLocaleDateString('en-CA');
-}
 
-function readNumberArrayFromStorage(key: string): number[] {
-  try {
-    const array = JSON.parse(
-      localStorage.getItem(key) ?? '[]'
-    );
-
-    return Array.isArray(array)
-      && array.every(value => typeof value === 'number')
-      ? array
-      : [];
-  } catch {
-    return []
-  }
-}
-
-function readStringArrayFromStorage(key: string): string[] {
-  try {
-    const array = JSON.parse(
-      localStorage.getItem(key) ?? '[]'
-    );
-
-    return Array.isArray(array)
-      ? array
-      : [];
-  } catch {
-    return []
-  }
-}
-
-function readBooleanFromStorage(key: string): boolean {
-  return localStorage.getItem(key) == 'true';
-}
-
-function getAverageScore() {
-  const allScores = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
-  return (allScores.reduce((sum, score) => sum + score, 0) / allScores.length).toFixed(1);
-}
 
 function simplifyText(text: string) {
   return text.toLowerCase().replace(/[\s\p{P}]/gu, '');
@@ -93,9 +52,9 @@ function simplifyText(text: string) {
 
 function App() {
 
-  const [today] = useState<string>(getTodaysDate());
+  const [today] = useState<string>(getDate(0));
   const [targetIndex] = useState<number>(Math.floor(seedrandom(today)() * TOTAL_BIRDS));
-  console.log(birdData[(targetIndex + 1) % TOTAL_BIRDS].name);
+  // console.log(birdData[(targetIndex + 1) % TOTAL_BIRDS].name);
   const [inputValue, setInputValue] = useState<string>("");
   const [currentGuessIndex, setCurrentGuessIndex] = useState<number | null>(null);
   const [guessIndices, setGuessIndices] = useState<number[]>(() => {
@@ -112,8 +71,17 @@ function App() {
     const lastGameDate = localStorage.getItem(LocalStorageKey.LastGameDate);
     const lastGameWon = readBooleanFromStorage(LocalStorageKey.GameWon);
     const lastGameWasToday = lastGameDate === today;
+    const playStreak = readNumberFromStorage(LocalStorageKey.PlayStreak) || 0;
+    if (lastGameDate === getDate(-1) && lastGameWon) {
+      localStorage.setItem(LocalStorageKey.PlayStreak, String(playStreak + 1));
+      console.log(`Incrementing streak from ${playStreak}`);
+    } else if (lastGameDate !== today) {
+      localStorage.setItem(LocalStorageKey.PlayStreak, '1');
+      console.log("Resetting streak...");
+    }
     if (!lastGameWasToday) {
-      localStorage.removeItem(LocalStorageKey.LastGameDate);
+      // localStorage.removeItem(LocalStorageKey.LastGameDate);
+      localStorage.setItem(LocalStorageKey.LastGameDate, today);
       localStorage.removeItem(LocalStorageKey.GameWon);
       localStorage.removeItem(LocalStorageKey.GuessIndices);
       localStorage.removeItem(LocalStorageKey.ShowHints);
@@ -158,6 +126,8 @@ function App() {
         simplifyText(birdSuggestion.label).includes(simplifyText(query))
         && !guessedBirdNames.includes(birdSuggestion.label.toLowerCase()));
 
+  const playStreak = readNumberFromStorage(LocalStorageKey.PlayStreak) || 1;
+
   suggestions.sort((a, b) => autocompleteSort(a.label.toLowerCase(), b.label.toLowerCase(), query));
 
   function handleInputChange(value: string): void {
@@ -178,6 +148,12 @@ function App() {
       const gameHistory: number[] = readNumberArrayFromStorage(LocalStorageKey.GameHistory);
       gameHistory.push(totalGuesses);
       localStorage.setItem(LocalStorageKey.GameHistory, JSON.stringify(gameHistory));
+
+      const currentScore = scoreBreakdown(totalGuesses, hintsShown.length, playStreak)
+      const gamePointsHistory: number[] = readNumberArrayFromStorage(LocalStorageKey.GamePointsHistory);
+      gamePointsHistory.push(currentScore.finalScore);
+      localStorage.setItem(LocalStorageKey.GamePointsHistory, JSON.stringify(gamePointsHistory));
+
     }
     setCurrentGuessIndex(null);
     setInputValue("");
@@ -193,6 +169,8 @@ function App() {
   }
 
   const selectedBird = currentGuessIndex == null ? null : birdData[currentGuessIndex];
+
+
 
   return (
     <>
@@ -219,7 +197,7 @@ function App() {
             averageTotalGuesses={getAverageScore()}
             totalUsedHints={hintsShown.length}
             isCheater={googleAnalytics}
-          />
+            playStreak={playStreak} />
         )}
         {((!gameWon && hints.length > 0 && guessIndices.length >= 8) || gameWon) && <GameHints
           hints={hints}
@@ -243,7 +221,7 @@ function App() {
             <div className={clsx(styles.title, styles.smallTitle, styles.statusCol)}>Conservation Status</div>
           </div>
           {guessIndices.toReversed().map(guessIndex => (
-            <div className={styles.guessRow}>
+            <div className={styles.guessRow} key={guessIndex}>
               <div className={clsx(
                 styles.guess,
                 styles.nameCol,

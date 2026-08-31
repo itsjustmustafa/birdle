@@ -35,7 +35,7 @@ export function GameHints({
                     return (
                         <p key={title}>
                             <strong>{title}: </strong>
-                            {censorBirdName(text, birdName)}
+                            {showEverything ? text : censorBirdName(text, birdName)}
                         </p>
                     );
                 }

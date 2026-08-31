@@ -1,0 +1,50 @@
+.scoreRow{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: min(50vw, 300px);
+    /* background-color: red; */
+    padding: 10px;
+    border-radius: 10px;
+    border: solid 4px;
+    border-color: var(--yellow);
+}
+
+.scoreRow.good {
+    border-color: var(--green);
+    background: rgb(from var(--green) r g b / 20%);
+}
+
+.scoreRow.bad {
+    border-color: var(--red);
+    background: rgb(from var(--red) r g b / 20%);
+}
+
+.scoreRow p{
+    margin: unset;
+}
+
+.description{
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.emoji{
+    font-size: 20px;
+}
+
+.score{
+    /* color: var(--green); */
+    font-weight: bold;
+    padding: 5px;
+    font-size: 20px;
+}
+
+.good .score{
+    color: var(--green);
+}
+
+.bad .score{
+    color: var(--red);
+}

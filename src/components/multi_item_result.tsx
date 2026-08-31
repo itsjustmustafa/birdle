@@ -57,7 +57,7 @@ export function MultiItemResult({ items, targetItems }: MultiItemResultProps) {
             result == 'incorrect' && styles.incorrect,
             result == 'partial' && styles.partial
         )} >
-            {items.map(item => typeof item === 'string' ? <p className={styles.textItem}>{addSoftHyphenToLongWords(item)}</p> : <>{item}</>)}
+            {items.map((item, index) => typeof item === 'string' ? <p key={index} className={styles.textItem}>{addSoftHyphenToLongWords(item)}</p> : <span key={index}>{item}</span>)}
         </div>
     );
 }

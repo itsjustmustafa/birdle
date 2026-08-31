@@ -5,12 +5,106 @@
     align-items: center;
 }
 
-
+.results button p {
+    margin: unset;
+}
 .copyButton {
     background-color: var(--green);
     border-color: var(--green);
 }
 
-.copyButton p {
+.scoresButton {
+    background-color: var(--green);
+    border-color: var(--green);
+}
+
+.closeButton {
+    border: none;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 5px;
     margin: unset;
+    height: unset;
+    border-radius: 100%;
+}
+
+.screenShadow {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9;
+
+    animation: shadowIn 200ms ease forwards;
+}
+
+.toast {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, calc(-50% + 20px));
+    border-radius: 10px;
+
+    padding: 25px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    z-index: 10;
+
+    animation: toastIn 200ms ease forwards;
+}
+
+.toast h1{
+    margin: 10px;
+}
+
+.fadeOut {
+    animation: shadowOut 200ms ease forwards;
+}
+
+.toastOut {
+    animation: toastOutAnimation 200ms ease forwards;
+}
+
+@keyframes shadowIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes shadowOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 20px));
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes toastOutAnimation {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 10px));
+    }
 }
