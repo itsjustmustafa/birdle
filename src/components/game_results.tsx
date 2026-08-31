@@ -191,7 +191,7 @@ export function GameResults({
                         <a className={styles.link} href="https://mzza.xyz/birdle/">{"mzza.xyz/birdle"}</a>
                         <h1>{scores.finalScore} pts</h1>
                         <ScoreRow
-                            description='You won!'
+                            description='You guessed the bird!'
                             scoreDelta={scores.baseScore}
                             emoji={'✅'}
                         />
