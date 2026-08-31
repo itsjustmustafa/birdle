@@ -9,7 +9,7 @@ export type ScoreRowProps = {
 
 export function ScoreRow({ description, scoreDelta, emoji }: ScoreRowProps) {
     return (
-        <div className={clsx(styles.scoreRow, scoreDelta && scoreDelta >= 0 && styles.good, scoreDelta < 0 && styles.bad)}>
+        <div className={clsx(styles.scoreRow, scoreDelta && scoreDelta >= 0 && styles.good, scoreDelta && scoreDelta < 0 && styles.bad)}>
             <span className={styles.description}>
                 {emoji && <p className={styles.emoji}>{emoji}</p>}
                 {description}
