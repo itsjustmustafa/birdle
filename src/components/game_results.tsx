@@ -128,7 +128,10 @@ export function GameResults({
                     clonedToast.style.top = "auto";
                     clonedToast.style.transform = "none";
                     clonedToast.style.animation = "none";
-                }
+                },
+                ignoreElements: (element) => {
+                    return element.classList.contains(styles.shareButtons);
+                },
             });
 
             const blob = await new Promise<Blob | null>((resolve) => {
