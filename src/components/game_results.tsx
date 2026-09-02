@@ -30,7 +30,7 @@ export function scoreBreakdown(totalGuesses: number, totalHints: number, playStr
     const totalHintsSubtracted = 5 * totalHints;
     const noHintBonus = totalHints > 0 ? 0 : 5;
     const totalStreakAdded = playStreak;
-    const finalScore = Math.max(0, 50 + totalGuessesDelta - totalHintsSubtracted + totalStreakAdded + noHintBonus);
+    const finalScore = 50 + totalGuessesDelta - totalHintsSubtracted + totalStreakAdded + noHintBonus;
     return {
         baseScore: baseScore,
         finalScore: finalScore,
@@ -74,11 +74,8 @@ export function GameResults({
 
     const scores = scoreBreakdown(totalGuesses, totalUsedHints, playStreak);
 
-    // console.log(scores)
-
-
     // ** birdle **
-    // 2026 -08 - 31
+    // 2026-08-31
     // 2 guesses • 66 points
     // No Hints
     // Average Guesses: 2.0
